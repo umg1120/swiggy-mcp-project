@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Dineout Search{% endblock %}
+{% block content %}
+  <h1>Find a restaurant to book</h1>
+
+  {% if not households %}
+    <p class="muted">No households yet -- <a href="/ui/households">create one first</a>.</p>
+  {% else %}
+    <form method="post" action="/dineout/search">
+      <label for="household_id">Household</label>
+      <select id="household_id" name="household_id" required>
+        {% for h in households %}
+          <option value="{{ h.id }}"
+            {% if h.id not in connected_ids %}disabled{% endif %}
+            {% if selected_household_id == h.id %}selected{% endif %}>
+            {{ h.name }}{% if h.id not in connected_ids %} (not connected -- see /auth/login){% endif %}
+          </option>
+        {% endfor %}
+      </select>
+
+      <label for="query">What are you looking for?</label>
+      <input type="text" id="query" name="query" required maxlength="255"
+             placeholder="e.g. biryani, rooftop, cafe" value="{{ query or '' }}">
+
+      <label for="latitude">Latitude</label>
+      <input type="number" step="any" id="latitude" name="latitude" required
+             value="{{ latitude if latitude is defined and latitude is not none else '12.9716' }}">
+
+      <label for="longitude">Longitude</label>
+      <input type="number" step="any" id="longitude" name="longitude" required
+             value="{{ longitude if longitude is defined and longitude is not none else '77.5946' }}">
+
+      <button type="submit">Search</button>
+    </form>
+  {% endif %}
+
+  {% if results is not none %}
+    <h2>Results ({{ results.total }})</h2>
+    {% if results.restaurants %}
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Cuisine</th><th>Area</th><th>Rating</th><th>Cost for two</th></tr>
+        </thead>
+        <tbody>
+          {% for r in results.restaurants %}
+            <tr>
+              <td>{{ r.name }}</td>
+              <td>{{ r.cuisine | join(', ') }}</td>
+              <td>{{ r.area or r.locality or '' }}</td>
+              <td>{% if r.rating %}{{ r.rating.value }} ({{ r.rating.count }}){% endif %}</td>
+              <td>{{ r.cost_for_two or '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No restaurants matched.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

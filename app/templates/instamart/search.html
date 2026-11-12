@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Instamart Search{% endblock %}
+{% block content %}
+  <h1>Search groceries on Instamart</h1>
+
+  {% if not households %}
+    <p class="muted">No households yet -- <a href="/ui/households">create one first</a>.</p>
+  {% else %}
+    <h2>1. Pick a household</h2>
+    <ul>
+      {% for h in households %}
+        <li>
+          {% if h.id in connected_ids %}
+            <a href="/instamart/search?household_id={{ h.id }}">{{ h.name }}</a>{% if selected_household_id == h.id %} (selected){% endif %}
+          {% else %}
+            {{ h.name }} (not connected -- see <a href="/auth/login">/auth/login</a>)
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if addresses is not none %}
+    <p><a href="/instamart/cart?household_id={{ selected_household_id }}">View cart</a></p>
+    <h2>2. Search</h2>
+    {% if not addresses %}
+      <p class="muted">No saved Swiggy delivery addresses found for this household.</p>
+    {% else %}
+      <form method="post" action="/instamart/search">
+        <input type="hidden" name="household_id" value="{{ selected_household_id }}">
+
+        <label for="address_id">Delivery address</label>
+        <select id="address_id" name="address_id" required>
+          {% for a in addresses %}
+            <option value="{{ a.id }}" {% if selected_address_id == a.id %}selected{% endif %}>
+              {{ a.address_line or a.id }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <label for="query">What are you looking for?</label>
+        <input type="text" id="query" name="query" required maxlength="255"
+               placeholder="e.g. milk, atta, chips" value="{{ query or '' }}">
+
+        <button type="submit">Search</button>
+      </form>
+    {% endif %}
+  {% endif %}
+
+  {% if results is not none %}
+    <h2>Results</h2>
+    {% if results.products %}
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Brand</th><th>In stock</th><th>Pack size / price</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for p in results.products %}
+            {% set v = p.variations[0] if p.variations else none %}
+            <tr>
+              <td>{{ p.display_name }}</td>
+              <td>{{ p.brand or '' }}</td>
+              <td>{{ 'Yes' if p.in_stock else 'No' }}</td>
+              <td>
+                {% for v in p.variations %}{{ v.quantity_description or '' }}{% if v.price and v.price.offer_price is not none %} — ₹{{ v.price.offer_price }}{% if v.price.mrp is not none and v.price.mrp != v.price.offer_price %} <span class="muted">(MRP ₹{{ v.price.mrp }})</span>{% endif %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}
+              </td>
+              <td>
+                {% if v and v.spin_id and v.is_in_stock_and_available %}
+                  <form method="post" action="/instamart/cart/add">
+                    <input type="hidden" name="household_id" value="{{ selected_household_id }}">
+                    <input type="hidden" name="address_id" value="{{ selected_address_id }}">
+                    <input type="hidden" name="spin_id" value="{{ v.spin_id }}">
+                    {% if v.sku_id %}<input type="hidden" name="sku_id" value="{{ v.sku_id }}">{% endif %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit">Add to cart</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No products matched.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

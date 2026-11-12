@@ -1,0 +1,1 @@
+CREATE DATABASE swiggy_mcp_test;

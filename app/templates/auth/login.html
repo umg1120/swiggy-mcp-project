@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Connect Swiggy{% endblock %}
+{% block content %}
+  <h1>Connect a household to Swiggy</h1>
+  {% if households %}
+    <ul>
+      {% for h in households %}
+        <li><a href="/auth/login/{{ h.id }}">Connect "{{ h.name }}"</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No households yet -- <a href="/ui/households">create one first</a>.</p>
+  {% endif %}
+{% endblock %}

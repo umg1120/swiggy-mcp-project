@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Households{% endblock %}
+{% block content %}
+  <h1>Households</h1>
+
+  {% if households %}
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Members</th><th>Created</th></tr>
+      </thead>
+      <tbody>
+        {% for h in households %}
+          <tr>
+            <td>{{ h.id }}</td>
+            <td>{{ h.name }}</td>
+            <td>
+              {% if h.members %}
+                {% for m in h.members %}{{ m.name }}{% if m.preferences %} <span class="muted">({{ m.preferences }})</span>{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}
+              {% else %}<span class="muted">none</span>{% endif %}
+            </td>
+            <td>{{ h.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No households yet.</p>
+  {% endif %}
+
+  <h2>Create a household</h2>
+  <form method="post" action="/ui/households">
+    <label for="name">Household name</label>
+    <input type="text" id="name" name="name" required maxlength="255">
+
+    <label for="member_names">Members (comma-separated, optional)</label>
+    <textarea id="member_names" name="member_names" rows="2" placeholder="e.g. Alice, Bob"></textarea>
+
+    <button type="submit">Create</button>
+  </form>
+{% endblock %}

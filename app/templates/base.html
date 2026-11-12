@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Swiggy MCP Project{% endblock %}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    nav a { margin-right: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
+    form { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; max-width: 400px; }
+    label { font-weight: 600; font-size: 0.9rem; }
+    input, textarea { padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; align-self: flex-start; }
+    .muted { color: #666; font-size: 0.85rem; }
+    .chat-log { max-width: 600px; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .chat-turn { margin: 0; padding: 0.5rem 0.75rem; border-radius: 0.5rem; }
+    .chat-user { background: #eef; align-self: flex-end; }
+    .chat-assistant { background: #f0f0f0; align-self: flex-start; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/ui/households">Households</a>
+    <a href="/auth/login">Connect Swiggy</a>
+    <a href="/dineout/search">Dineout Search</a>
+    <a href="/instamart/search">Instamart Search</a>
+    <a href="/chat">Chat</a>
+  </nav>
+  <hr>
+  {% block content %}{% endblock %}
+</body>
+</html>

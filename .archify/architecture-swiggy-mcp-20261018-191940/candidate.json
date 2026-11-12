@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Swiggy MCP Project",
+    "output": ".archify/architecture-swiggy-mcp-20261018-191940/swiggy-mcp-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "components": [
+    { "id": "browser", "type": "external", "label": "Browser", "sublabel": "you or a peer", "pos": [40, 228], "size": [140, 64] },
+    { "id": "tunnel", "type": "cloud", "label": "Cloudflare Tunnel", "sublabel": "cloudflared, optional", "pos": [300, 52], "size": [160, 64], "tag": "public https link" },
+    { "id": "frontend", "type": "frontend", "label": "React app", "sublabel": "Vite dev server :5173", "pos": [300, 228], "size": [160, 64], "tag": "ChaiUI" },
+    { "id": "backend", "type": "backend", "label": "FastAPI backend", "sublabel": "uvicorn :8000", "pos": [620, 220], "size": [160, 80], "tag": "app password session" },
+    { "id": "db", "type": "database", "label": "SQLite", "sublabel": "swiggy_mcp.db", "pos": [620, 420], "size": [160, 64], "tag": "households, tokens" },
+    { "id": "gemini", "type": "external", "label": "Gemini API", "sublabel": "gemini-3.6-flash", "pos": [620, 40], "size": [160, 64], "tag": "chat agent" },
+    { "id": "dineout", "type": "cloud", "label": "Dineout MCP", "sublabel": "mcp.swiggy.com/dineout", "pos": [960, 116], "size": [180, 64] },
+    { "id": "instamart", "type": "cloud", "label": "Instamart MCP", "sublabel": "mcp.swiggy.com/im", "pos": [960, 228], "size": [180, 64] },
+    { "id": "oauth", "type": "security", "label": "Swiggy OAuth", "sublabel": "PKCE, dynamic client", "pos": [960, 340], "size": [180, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Your laptop", "wraps": ["frontend", "backend", "db"] },
+    { "kind": "region", "label": "Swiggy", "wraps": ["dineout", "instamart", "oauth"] }
+  ],
+  "connections": [
+    { "id": "browser-frontend", "from": "browser", "to": "frontend", "label": "HTTP :5173", "variant": "emphasis" },
+    { "id": "browser-tunnel", "from": "browser", "to": "tunnel", "label": "peer link", "variant": "dashed" },
+    { "id": "tunnel-frontend", "from": "tunnel", "to": "frontend", "label": "forwards", "variant": "dashed" },
+    { "id": "frontend-backend", "from": "frontend", "to": "backend", "label": "/api, /auth proxy", "variant": "emphasis" },
+    { "id": "backend-db", "from": "backend", "to": "db", "label": "SQLAlchemy" },
+    { "id": "backend-gemini", "from": "backend", "to": "gemini", "label": "agent turns" },
+    { "id": "backend-dineout", "from": "backend", "to": "dineout", "label": "restaurant search" },
+    { "id": "backend-instamart", "from": "backend", "to": "instamart", "label": "search, cart" },
+    { "id": "backend-oauth", "from": "backend", "to": "oauth", "label": "token exchange", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "A request", "items": ["The browser loads the React app from Vite", "Vite forwards /api and /auth to FastAPI", "FastAPI calls Swiggy MCP tools with the household's token"] },
+    { "dot": "emerald", "title": "Chat", "items": ["FastAPI runs the Gemini agent loop", "Gemini picks a tool; FastAPI makes the Dineout or Instamart call", "Member preferences go into the agent's instructions"] },
+    { "dot": "rose", "title": "Sign-in", "items": ["App password gates every /api call", "Each household signs in to Swiggy in the browser", "Its OAuth token is stored in SQLite"] },
+    { "dot": "amber", "title": "Sharing", "items": ["cloudflared opens an outgoing link to Cloudflare", "Peers use the https link; everything still runs on your laptop"] }
+  ]
+}

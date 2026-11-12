@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Instamart Cart{% endblock %}
+{% block content %}
+  <h1>Your Instamart cart</h1>
+  <p><a href="/instamart/search?household_id={{ household_id }}">&larr; Back to search</a></p>
+
+  {% if cart.cart_absent or not cart.items %}
+    <p class="muted">Your cart is empty.</p>
+  {% else %}
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Variant</th><th>Qty</th><th>Price</th><th>In stock</th></tr>
+      </thead>
+      <tbody>
+        {% for item in cart.items %}
+          <tr>
+            <td>{{ item.item_name }}</td>
+            <td>{{ item.item_variant or '' }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>
+              {% if item.discounted_final_price is not none %}₹{{ item.discounted_final_price }}{% if item.mrp is not none and item.mrp != item.discounted_final_price %} <span class="muted">(MRP ₹{{ item.mrp }})</span>{% endif %}{% endif %}
+            </td>
+            <td>{{ 'Yes' if item.is_in_stock_and_available else 'No' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if cart.bill_breakdown %}
+      <table>
+        <tbody>
+          {% for line in cart.bill_breakdown.line_items %}
+            <tr><td>{{ line.label }}</td><td>{{ line.value }}</td></tr>
+          {% endfor %}
+          {% if cart.bill_breakdown.to_pay %}
+            <tr><td><strong>{{ cart.bill_breakdown.to_pay.label }}</strong></td><td><strong>{{ cart.bill_breakdown.to_pay.value }}</strong></td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <form method="post" action="/instamart/cart/clear">
+      <input type="hidden" name="household_id" value="{{ household_id }}">
+      <button type="submit">Clear cart</button>
+    </form>
+  {% endif %}
+{% endblock %}

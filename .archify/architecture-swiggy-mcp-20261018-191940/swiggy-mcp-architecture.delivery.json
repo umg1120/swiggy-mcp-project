@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2c566c64-eae3-4a27-9f8b-297f0f9bc268",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/umang_mittal/coding/swiggy-mcp-project/.archify/architecture-swiggy-mcp-20261018-191940/candidate.json",
+  "output": "/Users/umang_mittal/coding/swiggy-mcp-project/.archify/architecture-swiggy-mcp-20261018-191940/swiggy-mcp-architecture.html",
+  "specification": {
+    "sha256": "9cb9e897edb834baa310ba205de06bf5fbc9b6661a53c4108520003b50c02a51",
+    "bytes": 3618
+  },
+  "artifact": {
+    "sha256": "6e2345a390ce818f642793028faf31615d93cfe3d30b5fce6aa04a2cf2894a9d",
+    "bytes": 825529
+  }
+}

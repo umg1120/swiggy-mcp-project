@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Chat{% endblock %}
+{% block content %}
+  <h1>Ask about restaurants or groceries</h1>
+  <p class="muted">One box for both Dineout and Instamart — Gemini picks the right tool.</p>
+
+  {% if not households %}
+    <p class="muted">No households yet -- <a href="/ui/households">create one first</a>.</p>
+  {% else %}
+    <h2>1. Pick a household</h2>
+    <ul>
+      {% for h in households %}
+        <li>
+          {% if h.id in connected_ids %}
+            <a href="/chat?household_id={{ h.id }}">{{ h.name }}</a>{% if selected_household_id == h.id %} (selected){% endif %}
+          {% else %}
+            {{ h.name }} (not connected -- see <a href="/auth/login">/auth/login</a>)
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if addresses is not none %}
+    <h2>2. Chat</h2>
+
+    {% if transcript %}
+      <div class="chat-log">
+        {% for turn in transcript %}
+          <p class="chat-turn chat-{{ turn.role }}"><strong>{{ 'You' if turn.role == 'user' else 'Assistant' }}:</strong> {{ turn.text }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="/chat">
+      <input type="hidden" name="household_id" value="{{ selected_household_id }}">
+      <input type="hidden" name="history_json" value='{{ history_json }}'>
+
+      <label for="address_id">Instamart delivery address (only needed for grocery requests)</label>
+      <select id="address_id" name="address_id">
+        <option value="">-- none --</option>
+        {% for a in addresses %}
+          <option value="{{ a.id }}" {% if selected_address_id == a.id %}selected{% endif %}>
+            {{ a.address_line or a.id }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" required maxlength="1000" rows="3"
+                placeholder="e.g. find me a biryani place nearby, or add 2 packs of milk to my cart"></textarea>
+
+      <button type="submit">Send</button>
+    </form>
+  {% endif %}
+{% endblock %}
